@@ -25,8 +25,31 @@
 #include <caml/memory.h>
 #include <caml/custom.h>
 #include <caml/bigarray.h>
+#include <caml/fail.h>
 
 #include <stdio.h>
+
+/* Taken from svm.cpp */
+struct svm_model
+{
+  struct svm_parameter param;	/* parameter */
+  int nr_class;		/* number of classes, = 2 in regression/one class svm */
+  int l;			/* total #SV */
+  struct svm_node **SV;		/* SVs (SV[l]) */
+  double **sv_coef;	/* coefficients for SVs in decision functions (sv_coef[n-1][l]) */
+  double *rho;		/* constants in decision functions (rho[n*(n-1)/2]) */
+  double *probA;          /* pariwise probability information */
+  double *probB;
+  
+  /* for classification only */
+  
+  int *label;		/* label of each class (label[n]) */
+  int *nSV;		/* number of SVs for each class (nSV[n]) */
+  /* nSV[0] + nSV[1] + ... + nSV[n-1] = l */
+  /* XXX */
+  int free_sv;		/* 1 if svm_model is created by svm_load_model */
+  /* 0 if svm_model is created by svm_train */
+};
 
 struct svm_parameter param;
 struct svm_problem prob;
@@ -64,33 +87,34 @@ void destroy_pattern(){
 void setup_param(int svm_type, int kernel_type, double degree, double gamma, double coef0,
 		 int cache_size, double eps, double C, int nr_weight, int *weight_label, 
 		 double* weight, double nu, double p, int shrinking, int probability){
-  printf("svm_type = %d\n", svm_type);
   param.svm_type = svm_type;
-  printf("kernel_type = %d\n", kernel_type);
   param.kernel_type = kernel_type;
-  printf("degree = %g\n", degree);
   param.degree = degree;
-  printf("gamma = %g\n", gamma);
   param.gamma = gamma;
-  printf("coef0 = %g\n", coef0);
   param.coef0 = coef0;
-  printf("cache_size = %d\n", cache_size);
   param.cache_size = cache_size;
-  printf("eps = %g\n", eps);
   param.eps = eps;
-  printf("C = %g\n", C);
   param.C = C;
   param.nr_weight = nr_weight;
   param.weight_label = weight_label;
   param.weight = weight;
-  printf("nu = %g\n", nu);
   param.nu = nu;
-  printf("p = %g\n", p);
   param.p = p;
-  printf("shrinking = %d\n", shrinking);
   param.shrinking = shrinking;
-  printf("probability = %d\n", probability);
   param.probability = probability;
+
+/*   printf("svm_type = %d\n", svm_type); */
+/*   printf("kernel_type = %d\n", kernel_type); */
+/*   printf("degree = %g\n", degree); */
+/*   printf("gamma = %g\n", gamma); */
+/*   printf("coef0 = %g\n", coef0); */
+/*   printf("cache_size = %d\n", cache_size); */
+/*   printf("eps = %g\n", eps); */
+/*   printf("C = %g\n", C); */
+/*   printf("nu = %g\n", nu); */
+/*   printf("p = %g\n", p); */
+/*   printf("shrinking = %d\n", shrinking); */
+/*   printf("probability = %d\n", probability); */
 }
 
 /* Set up svm problem struct. */
@@ -124,11 +148,11 @@ void setup_problem(int l, int k, double *x, double *y){
    idx = 1;
  }
 
- for(i = 0; i < ((k+1)*l)-num_zero; ++i){
-   printf("(%d,%g) ", x_space[i].index, x_space[i].value);
-   if(x_space[i].index == -1)
-     printf("\n");
- }
+/*  for(i = 0; i < ((k+1)*l)-num_zero; ++i){ */
+/*    printf("(%d,%g) ", x_space[i].index, x_space[i].value); */
+/*    if(x_space[i].index == -1) */
+/*      printf("\n"); */
+/*  } */
 }
 
 /* Destroy svm problem struct. */
@@ -146,10 +170,73 @@ void setup_cm(int nr_class, double *cm, double *target){
 }
 
 /* Copy an svm_model, for now by saving and loading. TODO: direct copy */
-struct svm_model* copy_model(struct svm_model* model){
-  svm_save_model("xxxtmp.model",model);  
-  svm_destroy_model(model);
-  return svm_load_model("xxxtmp.model");
+struct svm_model* copy_model(struct svm_model *model, int k){
+  int i,j,pos,n,l,m,elements;
+  struct svm_node *x_space;
+  struct svm_model *copy;
+  copy = (struct svm_model *) malloc(sizeof(struct svm_model));
+  copy->param = model->param;
+  copy->nr_class = model->nr_class;
+  copy->l = model->l;
+  l = model->l;
+  n = model->nr_class;
+  copy->SV = (struct svm_node **) malloc(l*sizeof(struct svm_node *));
+  elements = l*(k+1);
+  x_space = (struct svm_node *) malloc(elements*sizeof(struct svm_node));
+  pos=0;
+  for(i = 0; i<l; ++i){
+    copy->SV[i] = &x_space[pos];
+    for(j = 0; j<k; ++j){
+      x_space[pos].index = model->SV[i][j].index;
+      x_space[pos].value = model->SV[i][j].value;
+      ++pos;
+    }
+    x_space[pos].index = -1;
+    x_space[pos].value = 42.0;
+    ++pos;
+  }
+  copy->sv_coef = (double **) malloc((n-1)*sizeof(double *));
+  for(i = 0; i<n-1; ++i){
+    copy->sv_coef[i] = (double *) malloc(l*sizeof(double));
+    for(j = 0; j<l; ++j){
+      copy->sv_coef[i][j] = model->sv_coef[i][j];
+    }
+  }
+  m = (n*(n-1))/2;
+  copy->rho = (double *) malloc(m*sizeof(double));
+  for(i = 0; i<m; ++i){
+    copy->rho[i] = model->rho[i];
+  }
+  copy->probA = NULL;
+  if(model->probA != NULL){
+    copy->probA = (double *) malloc(m*sizeof(double));
+    for(i = 0; i<m; ++i){
+      copy->probA[i] = model->probA[i];
+    }
+  }
+  copy->probB = NULL;
+  if(model->probB != NULL){
+    copy->probB = (double *) malloc(m*sizeof(double));
+    for(i = 0; i<m; ++i){
+      copy->probB[i] = model->probB[i];
+    }
+  }
+  copy->label = (int *) malloc(n*sizeof(int));
+  for(i = 0; i<n; ++i){
+    copy->label[i] = model->label[i];
+  }
+  copy->nSV = (int *) malloc(n*sizeof(int));
+  for(i = 0; i<n; ++i)
+    copy->nSV[i] = model->nSV[i];
+  copy->free_sv = 1;
+
+  /* Check */
+  svm_save_model("xxxtmp.model",model);   
+  svm_save_model("xxxtmp2.model",copy);   
+/*   svm_save_model("xxxtmp.model",model);    */
+/*   svm_destroy_model(model);  */
+/*   return svm_load_model("xxxtmp.model");  */
+  return copy;
 }
 
 void finalize_svm_model(value m){
@@ -163,6 +250,8 @@ CAMLprim value svm_train_c(value x, value y, value p){
   const char *msg;
   int *weight_label;
   double *weight;
+  int k;
+  k = Bigarray_val(x)->dim[1];
   if(Long_val(Field(p,8)) == 0){
     weight_label = NULL;
     weight = NULL;
@@ -192,9 +281,9 @@ CAMLprim value svm_train_c(value x, value y, value p){
 		(double *) Data_bigarray_val(y));
   msg=svm_check_parameter(&prob,&param);
   if(msg != NULL)
-    failwith(msg);
+    failwith((char *) msg);
   m = alloc_custom(&svm_model_ops, sizeof(struct svm_model *), 1, 10);
-  *((struct svm_model **) Data_custom_val(m)) = copy_model(svm_train(&prob,&param));
+  *((struct svm_model **) Data_custom_val(m)) = copy_model(svm_train(&prob,&param),k);
   destroy_problem();
   CAMLreturn (m);
 }
@@ -249,7 +338,7 @@ CAMLprim void svm_cross_validation_c(value x, value y, value p, value nr_fold, v
 		(double *) Data_bigarray_val(y));
   msg=svm_check_parameter(&prob,&param);
   if(msg != NULL)
-    failwith(msg);
+    failwith((char *) msg);
   svm_cross_validation(&prob,&param,Long_val(nr_fold),target);
   setup_cm(Bigarray_val(cm)->dim[0],(double *) Data_bigarray_val(cm), target);
   destroy_problem();
