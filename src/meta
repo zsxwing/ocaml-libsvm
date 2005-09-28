@@ -1,0 +1,7 @@
+name="ocaml-libsvm"
+version="0.1.0"
+description="OCaml bindings to libsvm"
+requires="lacaml"
+archive(byte)="libsvm.cma"
+archive(native)="libsvm.cmxa"
+

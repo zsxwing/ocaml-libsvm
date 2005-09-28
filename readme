@@ -1,0 +1,34 @@
+ocaml-libsvm - OCaml bindings for libsvm
+========================================
+
+Author: Dominik Brugger <dominikbrugger@fastmail.fm>
+Email: ???
+Homepage: http://ocaml-libsvm.berlios.de
+
+Copyright (C) 2005 Dominik Brugger
+
+Dependencies
+============
+To build the ocaml-libsvm library you need to have OCaml 3.08, the lacaml-3.06
+library and the libsvm-2.8 library.
+
+The lacaml library can be downloaded here: http://www.ocaml.info/home/ocaml_sources.html
+
+The libsvm library can be downloaded here: http://www.csie.ntu.edu.tw/~cjlin/libsvm/
+
+After compiling libsvm you need to do the following to complete the
+installation of the library:
+
+1) Create a shared library
+$ g++ -shared -o libsvm.so svm.o
+2) Install the library
+$ mkdir -p /usr/lib/libsvm
+$ cp libsvm.so /usr/lib/libsvm
+3) Install header file
+$ mkdir -p /usr/include/libsvm
+$ cp svm.h /usr/include/libsvm
+
+
+License
+=======
+The license of this library is LGPL.
