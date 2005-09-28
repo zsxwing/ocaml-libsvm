@@ -1,3 +1,24 @@
+/* 
+   ocaml-libsvm - OCaml bindings to libsvm
+   Copyright (C) 2005 Dominik Brugger
+
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+   
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+/* $Id$ */
+
 #include <libsvm/svm.h>
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
@@ -178,7 +199,7 @@ CAMLprim value svm_train_c(value x, value y, value p){
   CAMLreturn (m);
 }
 
-CAMLprim value svm_predict_c(value m, value x, value plabels){
+CAMLprim void svm_predict_c(value m, value x, value plabels){
   CAMLparam3 (m,x,plabels);
   int idx,l,k;
   double* p;
@@ -194,7 +215,7 @@ CAMLprim value svm_predict_c(value m, value x, value plabels){
   CAMLreturn0;
 }
 
-CAMLprim value svm_cross_validation_c(value x, value y, value p, value nr_fold, value cm){
+CAMLprim void svm_cross_validation_c(value x, value y, value p, value nr_fold, value cm){
   CAMLparam5 (x,y,p,nr_fold,cm);
   const char *msg=NULL;
   int *weight_label;
@@ -248,7 +269,7 @@ CAMLprim value svm_get_nr_class_c(value m){
   CAMLreturn (r);
 }
 
-CAMLprim value svm_get_labels_c(value m, value l){
+CAMLprim void svm_get_labels_c(value m, value l){
   CAMLparam2 (m,l);
   svm_get_labels(*((struct svm_model **) Data_custom_val(m)), 
 		 (int *) Data_bigarray_val(l));
@@ -260,7 +281,7 @@ CAMLprim value svm_get_svr_probability_c(value m){
   CAMLreturn (copy_double(svm_get_svr_probability(*((struct svm_model **) Data_custom_val(m)))));
 }
 
-CAMLprim value svm_predict_values_c(value m, value x, value dv){
+CAMLprim void svm_predict_values_c(value m, value x, value dv){
   CAMLparam3 (m,x,dv);
   setup_pattern(Bigarray_val(x)->dim[0],
 		Bigarray_val(x)->dim[1],
@@ -273,7 +294,7 @@ CAMLprim value svm_predict_values_c(value m, value x, value dv){
   CAMLreturn0;
 }
 
-CAMLprim value svm_predict_probability_c(value m, value x, value pe, value plabels){
+CAMLprim void svm_predict_probability_c(value m, value x, value pe, value plabels){
   CAMLparam4 (m,x,pe,plabels);
   int idx,l,k,nr_class;
   double *p; double *ppe;
@@ -303,7 +324,7 @@ CAMLprim value svm_check_probability_model_c(value m){
   CAMLreturn (r);
 }
 
-CAMLprim value svm_save_model_c(value file, value m){
+CAMLprim void svm_save_model_c(value file, value m){
   CAMLparam2 (file,m);
   if(svm_save_model(String_val(file), *((struct svm_model **) Data_custom_val(m))))
     failwith("Could not save model");
