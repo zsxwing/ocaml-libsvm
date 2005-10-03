@@ -9,21 +9,36 @@
 <body>
 
 <div class="content">
-      <h1>Introduction</h1>
+      <h1>Installation</h1>
       <p>
-	OCaml-libsvm provides bindings of the libsvm library for the
-	OCaml language. 
+	To build the ocaml-libsvm library you need to have:
+      <ul>
+	<li><a href="http://caml.inria.fr/">ocaml-3.08</a></li>
+	<li><a href="http://www.ocaml.info/home/ocaml_sources.html">lacaml-3.06</a></li>
+	<li><a href="http://www.ocaml-programming.de/packages/">findlib</a></li>
+	<li><a href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/">libsvm-2.8</a></li>
+      </ul>
       </p>
       <p>
-	Libsvm is an efficient implementation of Support Vector
-	Machines for classification and regression tasks. Further
-	information can be found at the official <a
-	href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/">libsvm-homepage</a>.
+	After compiling the libsvm library you need to do the
+	following to complete the installation of the library:
+      <ol>
+	<li>Create a shared library<br>
+	  $ g++ -shared -o libsvm.so svm.o
+	</li>
+	<li>Install the library<br>
+	  $ mkdir -p /usr/lib/libsvm<br>
+	  $ cp libsvm.so /usr/lib/libsvm
+	</li>
+	<li>Install header file<br>
+	  $ mkdir -p /usr/include/libsvm<br>
+	  $ cp svm.h /usr/include/libsvm
+	</li>
+      </ol>
       </p>
       <p>
-	OCaml is a very popular variant of Standard ML. Further
-	information can be found at the official <a
-	href="http://caml.inria.fr/">OCaml-homepage</a>.
+	Finally you can compile and install ocaml-libsvm with:<br>
+	$ make && make install
       </p>
 </div>
 
