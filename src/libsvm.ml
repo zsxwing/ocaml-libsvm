@@ -17,7 +17,7 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 *)
 
-(* $Id$ *)
+(* $Id: libsvm.ml 11 2005-09-28 05:47:30Z beeblbrox $ *)
 
 open Bigarray
 open Lacaml.D
@@ -264,7 +264,8 @@ struct
     and feat_max = Matlab.max x in
       Lacaml.D.Mat.map (fun v -> v +. lower) (Lacaml.D.Mat.map (fun v -> v *. (upper -. lower)) (Matlab.div (Matlab.sub x feat_min) (Matlab.sub feat_max feat_min)))
   ;;
-  let accuracy cm =
+  
+ (*   let accuracy cm =
     let tmp = Matlab.sum (Mat.transpose (Matlab.sum cm)) in
       (Vec.sum (Mat.diag cm)) /. tmp.{1,1}
   ;;
@@ -276,6 +277,7 @@ struct
     let n = Vec.dim t in
       Vec.prod t ** (1. /. (float_of_int n))
   ;;
+*)
 end
 ;;
 

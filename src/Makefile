@@ -5,7 +5,7 @@
 SOURCES = libsvm_c.c libsvm.mli libsvm.ml
 RESULT = libsvm
 LIBINSTALL_FILES = $(wildcard *.mli *.cmi *.cma *.cmxa *.a *.so)
-INCDIRS = $(shell ocamlc -v | tail -n 1 | cut -f 4 -d " ")/site-packages/lacaml
+INCDIRS = $(shell ocamlc -v | tail -n 1 | cut -f 4 -d " ")/site-lib/lacaml
 LIBDIRS = -L /usr/lib/libsvm
 LIBS = lacaml
 CLIBS = svm

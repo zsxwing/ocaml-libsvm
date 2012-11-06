@@ -101,7 +101,7 @@ module Libsvm :
       ?nu:float ->
       ?p:float ->
       ?shrinking:bool ->
-      ?probability:bool -> Lacaml_float64.mat -> mat -> svm_model_t
+      ?probability:bool -> Lacaml.D.mat -> mat -> svm_model_t
 	(** "This function constructs and returns an SVM model according to
 	    the given training data and parameters." (form libsvm-2.8 README abridged)
 
@@ -158,7 +158,7 @@ module Libsvm :
       ?p:float ->
       ?shrinking:bool ->
       ?probability:bool ->
-      Lacaml_float64.mat -> Lacaml_float64.mat -> int -> Lacaml_float64.mat
+      Lacaml.D.mat -> Lacaml.D.mat -> int -> Lacaml.D.mat
       (** "This function conducts cross validation. Data are separated to
 	  nr_fold folds. Under given parameters, sequentially each fold is
 	  validated using the model from training the remaining. Predicted
@@ -237,7 +237,7 @@ module Libsvm :
 	*)
     val svm_scale :
       ?lower:float ->
-      ?upper:float -> Lacaml_float64.mat -> Lacaml_float64.mat
+      ?upper:float -> Lacaml.D.mat -> Lacaml.D.mat
 	(** This function should be applied to the training and test data
 	    *before* using svm_train/svm_crossvalidatio etc., because of
 	    numerical issues.
@@ -248,7 +248,7 @@ module Libsvm :
 	    @param upper The upper bound.
 	    @param x The training/test data.
 	*)
-      val accuracy : Lacaml_float64.mat -> float
-      val tcr : Lacaml_float64.mat -> Lacaml_float64.vec
-      val gm2 : Lacaml_float64.mat -> float
+  (*    val accuracy : Lacaml.D.mat -> float
+      val tcr : Lacaml.D.mat -> Lacaml.D.vec
+      val gm2 : Lacaml.D.mat -> float *)
   end

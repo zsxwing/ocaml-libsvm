@@ -17,7 +17,7 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-/* $Id$ */
+/* $Id: libsvm_c.c 13 2005-09-28 14:56:43Z beeblbrox $ */
 
 #include <libsvm/svm.h>
 #include <caml/mlvalues.h>
@@ -29,27 +29,29 @@
 
 #include <stdio.h>
 
+
 /* Taken from svm.cpp */
-struct svm_model
-{
-  struct svm_parameter param;	/* parameter */
-  int nr_class;		/* number of classes, = 2 in regression/one class svm */
-  int l;			/* total #SV */
-  struct svm_node **SV;		/* SVs (SV[l]) */
-  double **sv_coef;	/* coefficients for SVs in decision functions (sv_coef[n-1][l]) */
-  double *rho;		/* constants in decision functions (rho[n*(n-1)/2]) */
-  double *probA;          /* pariwise probability information */
-  double *probB;
-  
-  /* for classification only */
-  
-  int *label;		/* label of each class (label[n]) */
-  int *nSV;		/* number of SVs for each class (nSV[n]) */
-  /* nSV[0] + nSV[1] + ... + nSV[n-1] = l */
-  /* XXX */
-  int free_sv;		/* 1 if svm_model is created by svm_load_model */
-  /* 0 if svm_model is created by svm_train */
-};
+//struct svm_model
+//{
+//  struct svm_parameter param;	/* parameter */
+//  int nr_class;		/* number of classes, = 2 in regression/one class svm */
+//  int l;			/* total #SV */
+//  struct svm_node **SV;		/* SVs (SV[l]) */
+//  double **sv_coef;	/* coefficients for SVs in decision functions (sv_coef[n-1][l]) */
+//  double *rho;		/* constants in decision functions (rho[n*(n-1)/2]) */
+//  double *probA;          /* pariwise probability information */
+//  double *probB;
+//  
+//  /* for classification only */
+//  
+//  int *label;		/* label of each class (label[n]) */
+//  int *nSV;		/* number of SVs for each class (nSV[n]) */
+//  /* nSV[0] + nSV[1] + ... + nSV[n-1] = l */
+//  /* XXX */
+//  int free_sv;		/* 1 if svm_model is created by svm_load_model */
+//  /* 0 if svm_model is created by svm_train */
+//};
+
 
 struct svm_parameter param;
 struct svm_problem prob;
